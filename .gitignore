@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.pyc
+quick_check.json
+
+# MATLAB / Simulink
+*.slx
+*.slxc
+slprj/
+*.asv
+*.mat
+results/
+
+# Simulation and FPGA outputs
+*.vcd
+*.fsdb
+*.wdb
+*.jou
+*.log
+.Xil/
+*.bit
+
+# Synopsys work directories and licensed library files (never commit)
+WORK/
+alib-52/
+*.svf
+*.db
+*.lib
+*.ndm
+*.lef
+*.gds
+*.tf
+*.tluplus
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
