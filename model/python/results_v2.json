@@ -1,0 +1,858 @@
+{
+ "seed": 2026,
+ "golden_cycles": 3124,
+ "golden_writes": 123,
+ "before_cfg": {
+  "scrub": 0,
+  "wdt": 0,
+  "ecc": false
+ },
+ "after_cfg": {
+  "scrub": 400,
+  "wdt": 300,
+  "ecc": true
+ },
+ "static": {
+  "voter_truth_table": true,
+  "voter_single": {
+   "trials": 100000,
+   "masked": 100000,
+   "located": 100000
+  },
+  "decode": {
+   "trials": 200000,
+   "hits": {
+    "ACC": 12347,
+    "None": 137647,
+    "IMEM": 12552,
+    "PERIPH": 12373,
+    "DMEM": 12572,
+    "RM": 12509
+   }
+  },
+  "ecc": {
+   "words": 300,
+   "clean": 300,
+   "single_total": 11700,
+   "single_corrected": 11700,
+   "double_total": 222300,
+   "double_detected": 222300
+  }
+ },
+ "experiments": {
+  "core": {
+   "label": "One bit flip in one core",
+   "n": 10000,
+   "before": {
+    "n": 10000,
+    "counts": {
+     "Detected and recovered": 6281,
+     "No effect (overwritten or cleared)": 1527,
+     "Latent (hidden, not cleared)": 2192
+    },
+    "mean_cycles": 3188.3236,
+    "latency": {
+     "n": 6281,
+     "median": 13,
+     "p90": 904,
+     "p99": 1620,
+     "max": 1869
+    },
+    "latency_hist": [
+     2803,
+     1203,
+     298,
+     77,
+     161,
+     324,
+     632,
+     715,
+     68
+    ],
+    "latency_edges": [
+     0,
+     10,
+     25,
+     50,
+     100,
+     200,
+     400,
+     800,
+     1600
+    ],
+    "recovery": {
+     "min": 135,
+     "median": 136,
+     "max": 138
+    },
+    "by_target": {
+     "r4": {
+      "Detected and recovered": 888,
+      "No effect (overwritten or cleared)": 7,
+      "Latent (hidden, not cleared)": 1
+     },
+     "r3": {
+      "Detected and recovered": 907,
+      "Latent (hidden, not cleared)": 4,
+      "No effect (overwritten or cleared)": 2
+     },
+     "state": {
+      "Detected and recovered": 910
+     },
+     "pc": {
+      "Detected and recovered": 816,
+      "No effect (overwritten or cleared)": 68
+     },
+     "r6": {
+      "No effect (overwritten or cleared)": 877,
+      "Detected and recovered": 50
+     },
+     "mepc": {
+      "Latent (hidden, not cleared)": 887
+     },
+     "r2": {
+      "Detected and recovered": 876,
+      "Latent (hidden, not cleared)": 2
+     },
+     "r1": {
+      "Detected and recovered": 913,
+      "No effect (overwritten or cleared)": 5,
+      "Latent (hidden, not cleared)": 5
+     },
+     "r5": {
+      "No effect (overwritten or cleared)": 565,
+      "Detected and recovered": 370
+     },
+     "r7": {
+      "Latent (hidden, not cleared)": 390,
+      "Detected and recovered": 551,
+      "No effect (overwritten or cleared)": 3
+     },
+     "ie": {
+      "Latent (hidden, not cleared)": 903
+     }
+    }
+   },
+   "after": {
+    "n": 10000,
+    "counts": {
+     "Detected and recovered": 7451,
+     "No effect (overwritten or cleared)": 2549
+    },
+    "mean_cycles": 3812.1392,
+    "latency": {
+     "n": 7451,
+     "median": 20,
+     "p90": 322,
+     "p99": 452,
+     "max": 482
+    },
+    "latency_hist": [
+     2670,
+     1340,
+     645,
+     466,
+     744,
+     1298,
+     288,
+     0,
+     0
+    ],
+    "latency_edges": [
+     0,
+     10,
+     25,
+     50,
+     100,
+     200,
+     400,
+     800,
+     1600
+    ],
+    "recovery": {
+     "min": 93,
+     "median": 134,
+     "max": 145
+    },
+    "by_target": {
+     "r4": {
+      "Detected and recovered": 805,
+      "No effect (overwritten or cleared)": 91
+     },
+     "r3": {
+      "Detected and recovered": 810,
+      "No effect (overwritten or cleared)": 103
+     },
+     "state": {
+      "Detected and recovered": 828,
+      "No effect (overwritten or cleared)": 82
+     },
+     "pc": {
+      "Detected and recovered": 751,
+      "No effect (overwritten or cleared)": 133
+     },
+     "r6": {
+      "No effect (overwritten or cleared)": 794,
+      "Detected and recovered": 133
+     },
+     "mepc": {
+      "No effect (overwritten or cleared)": 772,
+      "Detected and recovered": 115
+     },
+     "r2": {
+      "Detected and recovered": 757,
+      "No effect (overwritten or cleared)": 121
+     },
+     "r1": {
+      "Detected and recovered": 806,
+      "No effect (overwritten or cleared)": 117
+     },
+     "r5": {
+      "Detected and recovered": 790,
+      "No effect (overwritten or cleared)": 145
+     },
+     "r7": {
+      "Detected and recovered": 845,
+      "No effect (overwritten or cleared)": 99
+     },
+     "ie": {
+      "Detected and recovered": 811,
+      "No effect (overwritten or cleared)": 92
+     }
+    }
+   },
+   "single_core": {
+    "n": 10000,
+    "counts": {
+     "No effect (overwritten or cleared)": 4181,
+     "Wrong result": 2690,
+     "Hang": 1879,
+     "Crash": 1250
+    },
+    "mean_cycles": 4594.1093
+   }
+  },
+  "mem1": {
+   "label": "One bit flip in a data-memory word",
+   "n": 4000,
+   "before": {
+    "n": 4000,
+    "counts": {
+     "No effect (overwritten or cleared)": 1197,
+     "Wrong result": 2803
+    },
+    "mean_cycles": 3124
+   },
+   "after": {
+    "n": 4000,
+    "counts": {
+     "Corrected by memory ECC": 2568,
+     "No effect (overwritten or cleared)": 1432
+    },
+    "mean_cycles": 3803
+   },
+   "single_core": {
+    "n": 4000,
+    "counts": {
+     "No effect (overwritten or cleared)": 1197,
+     "Wrong result": 2803
+    },
+    "mean_cycles": 3124
+   }
+  },
+  "mem2": {
+   "label": "Two bit flips in one data-memory word",
+   "n": 1000,
+   "before": {
+    "n": 1000,
+    "counts": {
+     "No effect (overwritten or cleared)": 319,
+     "Wrong result": 681
+    },
+    "mean_cycles": 3124
+   },
+   "after": {
+    "n": 1000,
+    "counts": {
+     "No effect (overwritten or cleared)": 356,
+     "Correct after system reset": 571,
+     "Flagged by ECC, not correctable": 73
+    },
+    "mean_cycles": 6034.105
+   }
+  },
+  "dbl_far": {
+   "label": "Two cores hit at independent times",
+   "n": 3000,
+   "before": {
+    "n": 3000,
+    "counts": {
+     "Detected and recovered": 2319,
+     "No effect (overwritten or cleared)": 75,
+     "Correct after system reset": 249,
+     "Latent (hidden, not cleared)": 349,
+     "Hang": 8
+    },
+    "mean_cycles": 3487.1403333333333,
+    "latency": {
+     "n": 2576,
+     "median": 22.0,
+     "p90": 1626,
+     "p99": 2885,
+     "max": 3090
+    },
+    "latency_hist": [
+     895,
+     453,
+     122,
+     32,
+     70,
+     113,
+     224,
+     394,
+     273
+    ],
+    "latency_edges": [
+     0,
+     10,
+     25,
+     50,
+     100,
+     200,
+     400,
+     800,
+     1600
+    ],
+    "recovery": {
+     "min": 135,
+     "median": 137,
+     "max": 3294
+    },
+    "by_target": {
+     "state": {
+      "Detected and recovered": 276,
+      "Correct after system reset": 17
+     },
+     "mepc": {
+      "Detected and recovered": 169,
+      "Latent (hidden, not cleared)": 93
+     },
+     "r2": {
+      "Detected and recovered": 250,
+      "Correct after system reset": 23
+     },
+     "pc": {
+      "Detected and recovered": 259,
+      "Correct after system reset": 14,
+      "No effect (overwritten or cleared)": 3,
+      "Latent (hidden, not cleared)": 6
+     },
+     "r7": {
+      "Detected and recovered": 202,
+      "Latent (hidden, not cleared)": 39,
+      "Correct after system reset": 14
+     },
+     "r5": {
+      "Detected and recovered": 187,
+      "Correct after system reset": 20,
+      "Latent (hidden, not cleared)": 39,
+      "No effect (overwritten or cleared)": 31
+     },
+     "r6": {
+      "Latent (hidden, not cleared)": 60,
+      "Detected and recovered": 189,
+      "No effect (overwritten or cleared)": 41,
+      "Correct after system reset": 1
+     },
+     "r3": {
+      "Detected and recovered": 257,
+      "Correct after system reset": 20,
+      "Hang": 7,
+      "Latent (hidden, not cleared)": 2
+     },
+     "r4": {
+      "Correct after system reset": 18,
+      "Detected and recovered": 243,
+      "Latent (hidden, not cleared)": 3
+     },
+     "ie": {
+      "Latent (hidden, not cleared)": 107,
+      "Correct after system reset": 112,
+      "Detected and recovered": 69
+     },
+     "r1": {
+      "Detected and recovered": 218,
+      "Correct after system reset": 10,
+      "Hang": 1
+     }
+    }
+   },
+   "after": {
+    "n": 3000,
+    "counts": {
+     "Detected and recovered": 2764,
+     "No effect (overwritten or cleared)": 194,
+     "Correct after system reset": 42
+    },
+    "mean_cycles": 3844.382,
+    "latency": {
+     "n": 2806,
+     "median": 32.0,
+     "p90": 1033,
+     "p99": 2550,
+     "max": 2995
+    },
+    "latency_hist": [
+     823,
+     467,
+     209,
+     127,
+     250,
+     386,
+     190,
+     200,
+     154
+    ],
+    "latency_edges": [
+     0,
+     10,
+     25,
+     50,
+     100,
+     200,
+     400,
+     800,
+     1600
+    ],
+    "recovery": {
+     "min": 93,
+     "median": 386.0,
+     "max": 3358
+    },
+    "by_target": {
+     "state": {
+      "Detected and recovered": 279,
+      "No effect (overwritten or cleared)": 7,
+      "Correct after system reset": 7
+     },
+     "mepc": {
+      "Detected and recovered": 211,
+      "No effect (overwritten or cleared)": 51
+     },
+     "r2": {
+      "Detected and recovered": 257,
+      "Correct after system reset": 4,
+      "No effect (overwritten or cleared)": 12
+     },
+     "pc": {
+      "Detected and recovered": 269,
+      "No effect (overwritten or cleared)": 11,
+      "Correct after system reset": 2
+     },
+     "r7": {
+      "Detected and recovered": 244,
+      "No effect (overwritten or cleared)": 7,
+      "Correct after system reset": 4
+     },
+     "r5": {
+      "Detected and recovered": 263,
+      "No effect (overwritten or cleared)": 14
+     },
+     "r6": {
+      "Detected and recovered": 225,
+      "No effect (overwritten or cleared)": 65,
+      "Correct after system reset": 1
+     },
+     "r3": {
+      "Detected and recovered": 276,
+      "No effect (overwritten or cleared)": 10
+     },
+     "r4": {
+      "Detected and recovered": 254,
+      "Correct after system reset": 2,
+      "No effect (overwritten or cleared)": 8
+     },
+     "ie": {
+      "Detected and recovered": 264,
+      "Correct after system reset": 19,
+      "No effect (overwritten or cleared)": 5
+     },
+     "r1": {
+      "Detected and recovered": 222,
+      "Correct after system reset": 3,
+      "No effect (overwritten or cleared)": 4
+     }
+    }
+   }
+  },
+  "dbl_near": {
+   "label": "Two cores hit within 3 cycles",
+   "n": 3000,
+   "before": {
+    "n": 3000,
+    "counts": {
+     "Detected and recovered": 1984,
+     "No effect (overwritten or cleared)": 70,
+     "Correct after system reset": 561,
+     "Latent (hidden, not cleared)": 329,
+     "Wrong result": 11,
+     "Hang": 45
+    },
+    "mean_cycles": 3858.193,
+    "latency": {
+     "n": 2601,
+     "median": 7,
+     "p90": 753,
+     "p99": 1447,
+     "max": 1865
+    },
+    "latency_hist": [
+     1442,
+     439,
+     97,
+     32,
+     54,
+     96,
+     210,
+     213,
+     18
+    ],
+    "latency_edges": [
+     0,
+     10,
+     25,
+     50,
+     100,
+     200,
+     400,
+     800,
+     1600
+    ],
+    "recovery": {
+     "min": 135,
+     "median": 136.0,
+     "max": 138
+    },
+    "by_target": {
+     "ie": {
+      "Correct after system reset": 186,
+      "Latent (hidden, not cleared)": 103
+     },
+     "r1": {
+      "Correct after system reset": 61,
+      "Detected and recovered": 201,
+      "Hang": 13,
+      "No effect (overwritten or cleared)": 1,
+      "Latent (hidden, not cleared)": 1
+     },
+     "r5": {
+      "Detected and recovered": 183,
+      "No effect (overwritten or cleared)": 29,
+      "Latent (hidden, not cleared)": 27,
+      "Correct after system reset": 27
+     },
+     "pc": {
+      "Detected and recovered": 204,
+      "Correct after system reset": 48,
+      "No effect (overwritten or cleared)": 1,
+      "Latent (hidden, not cleared)": 2
+     },
+     "r7": {
+      "Detected and recovered": 201,
+      "Correct after system reset": 33,
+      "Latent (hidden, not cleared)": 43
+     },
+     "r2": {
+      "Detected and recovered": 193,
+      "Correct after system reset": 71,
+      "Latent (hidden, not cleared)": 1,
+      "Wrong result": 3
+     },
+     "r6": {
+      "Detected and recovered": 172,
+      "No effect (overwritten or cleared)": 39,
+      "Latent (hidden, not cleared)": 49,
+      "Correct after system reset": 3
+     },
+     "r4": {
+      "Detected and recovered": 205,
+      "Correct after system reset": 58,
+      "Latent (hidden, not cleared)": 3,
+      "Wrong result": 1
+     },
+     "r3": {
+      "Detected and recovered": 228,
+      "Correct after system reset": 21,
+      "Hang": 32,
+      "Latent (hidden, not cleared)": 1
+     },
+     "state": {
+      "Detected and recovered": 220,
+      "Correct after system reset": 53,
+      "Wrong result": 7
+     },
+     "mepc": {
+      "Detected and recovered": 177,
+      "Latent (hidden, not cleared)": 99
+     }
+    }
+   },
+   "after": {
+    "n": 3000,
+    "counts": {
+     "Detected and recovered": 2191,
+     "No effect (overwritten or cleared)": 391,
+     "Correct after system reset": 404,
+     "Latent (hidden, not cleared)": 1,
+     "Wrong result": 10,
+     "Hang": 3
+    },
+    "mean_cycles": 4056.208,
+    "latency": {
+     "n": 2608,
+     "median": 9.0,
+     "p90": 238,
+     "p99": 444,
+     "max": 480
+    },
+    "latency_hist": [
+     1342,
+     511,
+     168,
+     100,
+     162,
+     258,
+     67,
+     0,
+     0
+    ],
+    "latency_edges": [
+     0,
+     10,
+     25,
+     50,
+     100,
+     200,
+     400,
+     800,
+     1600
+    ],
+    "recovery": {
+     "min": 93,
+     "median": 136,
+     "max": 143
+    },
+    "by_target": {
+     "ie": {
+      "Correct after system reset": 131,
+      "Detected and recovered": 135,
+      "No effect (overwritten or cleared)": 22,
+      "Latent (hidden, not cleared)": 1
+     },
+     "r1": {
+      "Correct after system reset": 52,
+      "Detected and recovered": 195,
+      "No effect (overwritten or cleared)": 26,
+      "Hang": 2,
+      "Wrong result": 2
+     },
+     "r5": {
+      "Detected and recovered": 220,
+      "No effect (overwritten or cleared)": 46
+     },
+     "pc": {
+      "Detected and recovered": 186,
+      "Correct after system reset": 44,
+      "No effect (overwritten or cleared)": 25
+     },
+     "r7": {
+      "Detected and recovered": 221,
+      "Correct after system reset": 32,
+      "No effect (overwritten or cleared)": 24
+     },
+     "r2": {
+      "Correct after system reset": 50,
+      "Detected and recovered": 167,
+      "No effect (overwritten or cleared)": 49,
+      "Wrong result": 2
+     },
+     "r6": {
+      "Detected and recovered": 209,
+      "No effect (overwritten or cleared)": 54
+     },
+     "r4": {
+      "Detected and recovered": 194,
+      "Correct after system reset": 48,
+      "No effect (overwritten or cleared)": 25
+     },
+     "r3": {
+      "Detected and recovered": 238,
+      "No effect (overwritten or cleared)": 39,
+      "Correct after system reset": 4,
+      "Hang": 1
+     },
+     "state": {
+      "Detected and recovered": 213,
+      "No effect (overwritten or cleared)": 18,
+      "Correct after system reset": 43,
+      "Wrong result": 6
+     },
+     "mepc": {
+      "Detected and recovered": 213,
+      "No effect (overwritten or cleared)": 63
+     }
+    }
+   }
+  },
+  "perm": {
+   "label": "Permanent fault in one core",
+   "n": 200,
+   "before": {
+    "n": 200,
+    "counts": {
+     "Safe state": 200
+    },
+    "mean_cycles": 141
+   },
+   "after": {
+    "n": 200,
+    "counts": {
+     "Safe state": 200
+    },
+    "mean_cycles": 141
+   }
+  }
+ },
+ "order": [
+  "Detected and recovered",
+  "Corrected by memory ECC",
+  "No effect (overwritten or cleared)",
+  "Correct after system reset",
+  "Safe state",
+  "Flagged by ECC, not correctable",
+  "Latent (hidden, not cleared)",
+  "Wrong result",
+  "Hang",
+  "Crash"
+ ],
+ "fault_free": {
+  "before": {
+   "cycles": 3124,
+   "outcome": "No effect (overwritten or cleared)",
+   "scrubs": 0
+  },
+  "after": {
+   "cycles": 3803,
+   "outcome": "No effect (overwritten or cleared)",
+   "scrubs": 7
+  }
+ },
+ "scrub_sweep": [
+  {
+   "period": 0,
+   "counts": {
+    "Detected and recovered": 1248,
+    "No effect (overwritten or cleared)": 322,
+    "Latent (hidden, not cleared)": 430
+   },
+   "n": 2000,
+   "fault_free_cycles": 3124,
+   "latency": {
+    "n": 1248,
+    "median": 12.0,
+    "p90": 869,
+    "p99": 1607,
+    "max": 1816
+   },
+   "overhead": 0.0
+  },
+  {
+   "period": 800,
+   "counts": {
+    "Detected and recovered": 1505,
+    "No effect (overwritten or cleared)": 440,
+    "Latent (hidden, not cleared)": 55
+   },
+   "n": 2000,
+   "fault_free_cycles": 3415,
+   "latency": {
+    "n": 1505,
+    "median": 19,
+    "p90": 555,
+    "p99": 800,
+    "max": 882
+   },
+   "overhead": 0.09314980793854033
+  },
+  {
+   "period": 400,
+   "counts": {
+    "Detected and recovered": 1511,
+    "No effect (overwritten or cleared)": 489
+   },
+   "n": 2000,
+   "fault_free_cycles": 3803,
+   "latency": {
+    "n": 1511,
+    "median": 19,
+    "p90": 319,
+    "p99": 451,
+    "max": 479
+   },
+   "overhead": 0.2173495518565941
+  },
+  {
+   "period": 200,
+   "counts": {
+    "Detected and recovered": 1393,
+    "No effect (overwritten or cleared)": 607
+   },
+   "n": 2000,
+   "fault_free_cycles": 4385,
+   "latency": {
+    "n": 1393,
+    "median": 18,
+    "p90": 188,
+    "p99": 269,
+    "max": 280
+   },
+   "overhead": 0.40364916773367476
+  },
+  {
+   "period": 100,
+   "counts": {
+    "Detected and recovered": 1320,
+    "No effect (overwritten or cleared)": 680
+   },
+   "n": 2000,
+   "fault_free_cycles": 5258,
+   "latency": {
+    "n": 1320,
+    "median": 17.0,
+    "p90": 101,
+    "p99": 168,
+    "max": 182
+   },
+   "overhead": 0.6830985915492958
+  },
+  {
+   "period": 50,
+   "counts": {
+    "Detected and recovered": 1205,
+    "No effect (overwritten or cleared)": 795
+   },
+   "n": 2000,
+   "fault_free_cycles": 6533,
+   "latency": {
+    "n": 1205,
+    "median": 17,
+    "p90": 74,
+    "p99": 125,
+    "max": 130
+   },
+   "overhead": 1.0912291933418694
+  }
+ ],
+ "total_runs": 68400,
+ "seconds": 409
+}

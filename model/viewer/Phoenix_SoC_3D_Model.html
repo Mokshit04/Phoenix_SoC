@@ -1,0 +1,265 @@
+<title>Phoenix SoC 3D Model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: 3D scene on the left, scenario controls + live caption + results on the right; stacks on phones. */
+:root{
+  --bg:#f3f5f8; --panel:#ffffff; --ink:#131a24; --muted:#566273; --line:#d5dbe4; --stage:#e7ebf1;
+  --cpu:#2a62c9; --mem:#16806f; --per:#a8560f; --acc:#6b3fb8; --rec:#b0307a; --bus:#27313f;
+  --ok:#0ca30c; --warn:#e8bd00; --bad:#e02020;
+  --display:"Space Grotesk",system-ui,sans-serif; --body:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1218; --panel:#161c25; --ink:#e9edf3; --muted:#9aa6b6; --line:#2a3340; --stage:#0a0e13;
+  --cpu:#5b8fee; --mem:#2fb39c; --per:#d07a2c; --acc:#a184ea; --rec:#e070b0; --bus:#8492a6;
+  --ok:#3fc93f; --warn:#f5d21f; --bad:#ff4b4b; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0e1218; --panel:#161c25; --ink:#e9edf3; --muted:#9aa6b6; --line:#2a3340; --stage:#0a0e13;
+  --cpu:#5b8fee; --mem:#2fb39c; --per:#d07a2c; --acc:#a184ea; --rec:#e070b0; --bus:#8492a6;
+  --ok:#3fc93f; --warn:#f5d21f; --bad:#ff4b4b; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1500px;margin:0 auto;padding-block:20px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+header h1{font-family:var(--display);font-size:clamp(22px,3vw,30px);margin:0;letter-spacing:-.01em;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted);max-width:75ch}
+.main{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(300px,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;background:var(--stage);border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:0}
+#scene{display:block;width:100%;height:min(68vh,640px);touch-action:none}
+@media (max-width:900px){#scene{height:52vh}}
+.hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 80%,transparent);padding:3px 8px;border-radius:6px}
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h2{font-family:var(--display);font-size:15px;margin:0 0 10px;letter-spacing:.02em;text-transform:uppercase;color:var(--muted)}
+.scn{display:flex;flex-direction:column;gap:6px}
+.scn button{font:inherit;text-align:left;padding:8px 10px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.scn button:hover{border-color:var(--cpu)}
+.scn button[aria-pressed="true"]{background:var(--cpu);border-color:var(--cpu);color:#fff;font-weight:600}
+button:focus-visible{outline:2px solid var(--cpu);outline-offset:2px}
+.ctl{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ctl button{font:inherit;font-weight:600;padding:6px 12px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+#steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+#steps li{padding:6px 10px;border-left:3px solid var(--line);color:var(--muted);font-size:14px}
+#steps li.on{border-left-color:var(--cpu);color:var(--ink);background:color-mix(in srgb,var(--cpu) 9%,transparent);font-weight:500}
+#steps li.done{color:var(--ink)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left;min-width:170px}
+th{max-width:150px}
+th{color:var(--muted);font-weight:600}
+.tscroll{overflow-x:auto}
+.note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.good{color:var(--ok);font-weight:600}.badv{color:var(--bad);font-weight:600}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Phoenix SoC: 3D architecture model</h1>
+    <p>A walk-through of how the architecture reacts to each kind of fault. The scenes replay the behaviour of the pre-RTL model; the layout is a block view, not a physical floorplan. Nothing here is RTL or silicon.</p>
+  </header>
+  <div class="main">
+    <div class="stage">
+      <canvas id="scene" aria-label="3D view of the Phoenix SoC blocks"></canvas>
+      <div class="hint">Drag to rotate, scroll or pinch to zoom</div>
+    </div>
+    <div class="side">
+      <div class="card">
+        <h2>Scenario</h2>
+        <div class="scn" id="scn"></div>
+        <div class="ctl"><button id="play">Pause</button><button id="next">Next step</button><button id="restart">Restart</button></div>
+      </div>
+      <div class="card">
+        <h2>What is happening</h2>
+        <ol id="steps"></ol>
+      </div>
+      <div class="card">
+        <h2>Block states</h2>
+        <div class="legend">
+          <span style="--c:var(--cpu)">Processor</span><span style="--c:var(--mem)">Memory</span><span style="--c:var(--per)">Peripheral</span>
+          <span style="--c:var(--acc)">Accelerator</span><span style="--c:var(--rec)">Recovery logic</span><span style="--c:var(--bad)">Faulty</span>
+          <span style="--c:var(--warn)">Working on it</span><span style="--c:var(--ok)">Recovered</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Model results: before and after the three protection mechanisms</h2>
+    <div class="tscroll"><table id="res"></table></div>
+    <p class="note" id="resnote"></p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const DATA = {"rows": [{"label": "One bit flip in one core", "n": 10000, "ub": 21.9, "ua": 0.0, "db": 62.8, "da": 74.5}, {"label": "One bit flip in a data-memory word", "n": 4000, "ub": 70.1, "ua": 0.0, "db": 0.0, "da": 64.2}, {"label": "Two bit flips in one data-memory word", "n": 1000, "ub": 68.1, "ua": 0.0, "db": 0.0, "da": 0.0}, {"label": "Two cores hit at independent times", "n": 3000, "ub": 11.9, "ua": 0.0, "db": 77.3, "da": 92.1}, {"label": "Two cores hit within 3 cycles", "n": 3000, "ub": 12.8, "ua": 0.5, "db": 66.1, "da": 73.0}, {"label": "Permanent fault in one core", "n": 200, "ub": 0.0, "ua": 0.0, "db": 0.0, "da": 0.0}], "note": "68,400 simulated runs of the pre-RTL model. Unresolved means a wrong result, a hang, or a hidden fault left in a core. The remaining cases were overwritten harmlessly, cleared, restarted correctly by a system reset, or ended in the safe state. The model uses a stand-in core, not Ibex, so these figures test the architecture's logic, not the final hardware."};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---------------------------------------------------------------- scene
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
+const CAMDIR = new THREE.Vector3(0.5, 18.5, 21).normalize(); let camSet = false;
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.target.set(0.5, 0, 0.5); controls.enableDamping = true; controls.maxPolarAngle = Math.PI/2.1;
+controls.minDistance = 12; controls.maxDistance = 55;
+scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+const sun = new THREE.DirectionalLight(0xffffff, 0.75); sun.position.set(8, 20, 12); scene.add(sun);
+
+const board = new THREE.Mesh(new THREE.BoxGeometry(27, 0.3, 17), new THREE.MeshStandardMaterial({roughness:.9}));
+board.position.set(0.5, -0.16, 0.2); scene.add(board);
+
+const B = {};   // blocks
+function label(text, sub){
+  const c = document.createElement('canvas'); c.width = 512; c.height = 128;
+  const g = c.getContext('2d'); g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = '700 50px "Space Grotesk", Inter, sans-serif';
+  const w = Math.min(500, Math.max(g.measureText(text).width, sub ? 300 : 0) + 44), h = sub ? 116 : 76, x = 256 - w/2, y = 64 - h/2, r = 16;
+  g.fillStyle = 'rgba(14,18,24,.82)'; g.beginPath();
+  g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.fill();
+  g.fillStyle = '#fff'; g.fillText(text, 256, sub ? 46 : 66);
+  if (sub){ g.font = '500 30px Inter, sans-serif'; g.fillStyle = '#c9d2de'; g.fillText(sub, 256, 92); }
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c), depthTest:false, transparent:true}));
+  s.scale.set(4.6, 1.15, 1); return s;
+}
+function block(id, name, sub, kind, x, z, w, h, d){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({roughness:.55, metalness:.05}));
+  m.position.set(x, h/2, z); scene.add(m);
+  const l = label(name, sub); l.position.set(x, h + 0.75, z); scene.add(l);
+  B[id] = {mesh:m, kind, state:'idle', h};
+}
+block('clk','Clock + reset','', 'bus', -10.5,-5.2, 3,0.8,2.6);
+block('A','Ibex A','','cpu', -6,-5.2, 3,1.7,3);
+block('B','Ibex B','','cpu', -2,-5.2, 3,1.7,3);
+block('C','Ibex C','','cpu',  2,-5.2, 3,1.7,3);
+block('vote','Voters + detector','','rec', -2,-1.3, 11,0.8,1.7);
+block('rm','PHX_RM','','rec', 9.6,-3.4, 5,1.5,5.4);
+block('ibus','I-channel','','bus', -6,2, 3,0.45,1.1);
+block('dbus','D-channel','','bus', 4,2, 14.6,0.45,1.1);
+block('imem','IMEM','','mem', -6,5.6, 3,1.1,2.6);
+[['dmem','DMEM','','mem'],['gpio','GPIO','','per'],['timer','Timer','','per'],['pwm','PWM','','per'],['uart','UART','','per'],['acc','PHX_ACC','','acc']]
+  .forEach((t,i)=>block(t[0],t[1],t[2],t[3], -2.3+i*2.52, 5.6, 2.1,1.0,2.6));
+
+const L = {};   // links: id -> {a,b}
+function link(id, a, b, y){
+  const pa = new THREE.Vector3(a[0], y||0.5, a[1]), pb = new THREE.Vector3(b[0], y||0.5, b[1]);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([pa,pb]), new THREE.LineBasicMaterial({transparent:true, opacity:.7}));
+  scene.add(line); L[id] = {a:pa, b:pb, line};
+}
+['A','B','C'].forEach((c,i)=>link('c'+c, [-6+i*4,-3.7], [-6+i*4,-2.15]));
+link('vi', [-6,-0.45], [-6,1.45]); link('vd', [1,-0.45], [1,1.45]);
+link('ii', [-6,2.55], [-6,4.3]);
+['dmem','gpio','timer','pwm','uart','acc'].forEach((t,i)=>link('d_'+t, [-2.3+i*2.52,2.55], [-2.3+i*2.52,4.3]));
+link('mis', [3.5,-1.3], [7.1,-2.2], 0.7); link('rmc', [7.1,-4.6], [3.5,-5.2], 1.4); link('rmd', [9.6,-0.7], [9.6,1.45]);
+link('clkc', [-9,-5.2], [-7.5,-5.2]);
+
+const pulses = [];
+function pulse(id, color, rev){
+  const s = new THREE.Mesh(new THREE.SphereGeometry(0.19, 16, 12), new THREE.MeshBasicMaterial({color}));
+  scene.add(s); pulses.push({s, l:L[id], rev:!!rev, ph:Math.random()});
+}
+function clearPulses(){ pulses.forEach(p=>scene.remove(p.s)); pulses.length = 0; }
+
+// ---------------------------------------------------------------- theme colours
+let COL = {};
+function theme(){
+  COL = {cpu:css('--cpu'), mem:css('--mem'), per:css('--per'), acc:css('--acc'), rec:css('--rec'), bus:css('--bus'),
+         bad:css('--bad'), warn:css('--warn'), ok:css('--ok'), off:css('--line'), stage:css('--stage'), line:css('--muted')};
+  scene.background = new THREE.Color(COL.stage);
+  board.material.color.set(css('--panel'));
+  Object.values(L).forEach(l=>l.line.material.color.set(COL.line));
+  Object.values(B).forEach(b=>b.target = new THREE.Color(colorFor(b)));
+}
+function colorFor(b){ return {idle:COL[b.kind], bad:COL.bad, work:COL.warn, ok:COL.ok, off:COL.off}[b.state]; }
+function setState(id, st){ const b = B[id]; b.state = st; b.target = new THREE.Color(colorFor(b)); }
+new MutationObserver(theme).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', theme);
+
+// ---------------------------------------------------------------- scenarios
+// each step: [caption, {block:state,...}, [[link, colourKey, reversed], ...]]
+const ALLC = ['A','B','C'];
+const run3 = [['cA','cpu'],['cB','cpu'],['cC','cpu'],['vi','cpu'],['vd','cpu'],['ii','mem',1],['d_dmem','mem']];
+const SC = [
+ {name:'Normal operation', steps:[
+   ['Three cores run the same program in lockstep. Their bus outputs go to the voters.', {}, run3],
+   ['The voted instruction port fetches from IMEM; the voted data port reaches DMEM and the peripherals.', {}, run3.concat([['d_gpio','per'],['d_uart','per']])],
+   ['Read data, grants and interrupts fan out identically to all three cores, so they stay in step.', {}, [['cA','mem',1],['cB','mem',1],['cC','mem',1],['ii','mem',1],['d_dmem','mem',1]]]]},
+ {name:'Bit flip in one core', steps:[
+   ['A bit flips inside core B. Its outputs start to differ from A and C.', {B:'bad'}, [['cA','cpu'],['cB','bad'],['cC','cpu']]],
+   ['The voters pass the majority value, so memory never sees the wrong output. The detector flags core B.', {B:'bad', vote:'work'}, [['cA','cpu'],['cB','bad'],['cC','cpu'],['vd','cpu'],['mis','bad']]],
+   ['PHX_RM raises the resynchronisation interrupt. The cores save their state to DMEM through the voters.', {B:'bad', rm:'work', dmem:'work'}, [['rmc','warn'],['vd','warn'],['d_dmem','warn']]],
+   ['PHX_RM resets all three cores together. Memory and peripherals keep running.', {A:'off',B:'off',C:'off', rm:'work'}, [['rmc','warn'],['clkc','warn']]],
+   ['The cores leave reset on the same cycle and reload the saved state from DMEM.', {A:'work',B:'work',C:'work', rm:'work', dmem:'work'}, [['d_dmem','warn',1],['vd','warn',1]]],
+   ['PHX_RM watches N cycles for any disagreement. None: the program continues where it stopped.', {A:'ok',B:'ok',C:'ok', rm:'ok', vote:'ok'}, run3]]},
+ {name:'Hidden fault found by scrub', steps:[
+   ['A bit flips in a register of core C that the program is not using. No output changes, so nothing is flagged.', {C:'bad'}, run3],
+   ['The scrub timer in PHX_RM expires and forces a resynchronisation, fault or no fault.', {C:'bad', rm:'work'}, [['rmc','warn']]],
+   ['While saving state, core C writes a different value. The detector now sees it, and the voters keep it out of memory.', {C:'bad', vote:'work', rm:'work', dmem:'work'}, [['cA','cpu'],['cB','cpu'],['cC','bad'],['mis','bad'],['d_dmem','warn']]],
+   ['Reset and restore from the majority state. The hidden fault is gone before a second fault can combine with it.', {A:'ok',B:'ok',C:'ok', rm:'ok', vote:'ok'}, run3]]},
+ {name:'Bit flip in data memory', steps:[
+   ['A stored bit flips in DMEM. All three cores share this memory, so voting cannot help.', {dmem:'bad'}, run3],
+   ['The cores read that word. The 7 check bits stored with it locate the wrong bit.', {dmem:'work'}, [['vd','cpu'],['d_dmem','warn',1]]],
+   ['The memory wrapper corrects the bit, returns the right value and writes the fixed word back.', {dmem:'ok'}, [['d_dmem','ok',1],['vd','ok',1],['cA','ok',1],['cB','ok',1],['cC','ok',1]]]]},
+ {name:'Peripheral stops responding', steps:[
+   ['The cores access the UART, and it never answers.', {uart:'bad'}, [['vd','cpu'],['d_uart','bad']]],
+   ['The timeout monitor on the D-channel ends the transfer with an error and reports the UART to PHX_RM.', {uart:'bad', dbus:'work', rm:'work'}, [['rmd','bad',1],['vd','bad',1]]],
+   ['The trap handler asks PHX_RM to reset that one peripheral.', {uart:'off', rm:'work', dbus:'work'}, [['rmd','warn'],['d_uart','warn']]],
+   ['The access is repeated as a known-good check. It succeeds and service resumes.', {uart:'ok', rm:'ok', dbus:'ok'}, [['vd','cpu'],['d_uart','ok']]]]},
+ {name:'Permanent fault', steps:[
+   ['Core A has a fault that does not go away. It is detected and recovered like any other.', {A:'bad', rm:'work'}, [['cA','bad'],['mis','bad']]],
+   ['The mismatch returns after every recovery. After M attempts PHX_RM stops retrying.', {A:'bad', rm:'work', vote:'work'}, [['cA','bad'],['mis','bad'],['rmc','warn']]],
+   ['PHX_RM performs one system reset and restarts the application. The fault history survives the reset.', {A:'off',B:'off',C:'off', rm:'work'}, [['rmc','warn'],['clkc','warn']]],
+   ['The fault appears again. PHX_RM holds the cores in reset, forces the outputs to safe values and raises the FAULT pin.', {A:'bad',B:'off',C:'off', rm:'bad', gpio:'off', pwm:'off'}, []]]}
+];
+
+let cur = 0, step = 0, playing = !reduce, tStep = 0;
+const scn = document.getElementById('scn'), stepsEl = document.getElementById('steps');
+SC.forEach((s,i)=>{ const b = document.createElement('button'); b.textContent = s.name; b.id = 'scn-'+i;
+  b.onclick = ()=>{cur = i; step = 0; show();}; scn.appendChild(b); });
+function show(){
+  [...scn.children].forEach((b,i)=>b.setAttribute('aria-pressed', i===cur));
+  const s = SC[cur]; stepsEl.innerHTML = '';
+  s.steps.forEach((st,i)=>{ const li = document.createElement('li'); li.textContent = st[0];
+    li.className = i===step ? 'on' : i<step ? 'done' : ''; stepsEl.appendChild(li); });
+  Object.keys(B).forEach(id=>setState(id,'idle'));
+  const st = s.steps[step]; Object.entries(st[1]).forEach(([id,v])=>setState(id,v));
+  clearPulses(); st[2].forEach(p=>pulse(p[0], COL[p[1]], p[2]));
+  tStep = performance.now();
+}
+function advance(){ step = (step+1) % SC[cur].steps.length; show(); }
+document.getElementById('next').onclick = advance;
+document.getElementById('restart').onclick = ()=>{step = 0; show();};
+const playBtn = document.getElementById('play');
+playBtn.textContent = playing ? 'Pause' : 'Play';
+playBtn.onclick = ()=>{playing = !playing; playBtn.textContent = playing ? 'Pause' : 'Play'; tStep = performance.now();};
+
+// ---------------------------------------------------------------- results table
+(function(){
+  if (!DATA) return;
+  const t = document.getElementById('res');
+  let h = '<tr><th>Fault class</th><th>Cases</th><th>Unresolved before</th><th>Unresolved after</th><th>Detected and recovered or corrected, before</th><th>after</th></tr>';
+  DATA.rows.forEach(r=>{ h += `<tr><td>${r.label}</td><td>${r.n.toLocaleString()}</td><td class="${r.ub>0?'badv':'good'}">${r.ub.toFixed(1)}%</td><td class="${r.ua>0?'badv':'good'}">${r.ua.toFixed(1)}%</td><td>${r.db.toFixed(1)}%</td><td>${r.da.toFixed(1)}%</td></tr>`; });
+  t.innerHTML = h;
+  document.getElementById('resnote').textContent = DATA.note;
+})();
+
+// ---------------------------------------------------------------- loop
+function resize(){ const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix();
+  if (!camSet || true){ const d = 28 * Math.max(1, 1.55/camera.aspect); if (!camSet){ camera.position.copy(controls.target).addScaledVector(CAMDIR, d); camSet = true; } controls.maxDistance = Math.max(55, d*1.4); } }
+new ResizeObserver(resize).observe(canvas);
+theme(); show(); resize();
+function frame(now){
+  Object.values(B).forEach(b=>{ b.mesh.material.color.lerp(b.target, 0.12);
+    const pulseAmt = (b.state==='bad' && !reduce) ? 0.25 + 0.25*Math.sin(now/160) : 0;
+    b.mesh.material.emissive.copy(b.target).multiplyScalar(pulseAmt); });
+  pulses.forEach(p=>{ let k = ((now/900) + p.ph) % 1; if (p.rev) k = 1-k; if (reduce) k = 0.5; p.s.position.lerpVectors(p.l.a, p.l.b, k); });
+  if (playing && now - tStep > 4200) advance();
+  controls.update(); renderer.render(scene, camera); requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>

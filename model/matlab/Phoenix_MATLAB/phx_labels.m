@@ -1,0 +1,6 @@
+function L = phx_labels()
+%PHX_LABELS  Outcome names, in code order 1..10 (used for printing and plots only).
+L = {'Detected and recovered', 'Corrected by memory ECC', 'No effect (overwritten or cleared)', ...
+     'Correct after system reset', 'Safe state', 'Flagged by ECC, not correctable', ...
+     'Latent (hidden, not cleared)', 'Wrong result', 'Hang', 'Crash'};
+end
